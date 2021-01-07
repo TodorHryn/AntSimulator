@@ -25,7 +25,7 @@ Terrain::Terrain(const QSize &size) : size_(size) {
             tiles_[x][y] = Tiles::WATER;
         }
 
-        if (y < dirtLevel - 5)
+        if (y < dirtLevel - 8)
             tiles_[wd][y] = Tiles::DIRT_STABLE;
     }
 
@@ -53,11 +53,8 @@ void Terrain::tick() {
             }
             else if (tiles_[x][y] == Tiles::WATER) {
                 if (!tryMove(x, y, 0, 1)) {
-                    if (!tryMove(x, y, 1, 1, UINT8_MAX / 2) || !tryMove(x, y, -1, 1, UINT8_MAX / 2)) {
-                        tryMove(x, y, 1, 0, UINT8_MAX / 2);
-                        tryMove(x, y, -1, 0, UINT8_MAX / 2);
-                        //if (x < size_.width() - 1) tryMove(x, y, 1, 0, (tiles_[x][y].fillLevel - tiles_[x + 1][y].fillLevel) / 2);
-                    }
+                    tryMove(x, y, 1, 0);
+                    tryMove(x, y, -1, 0);
                 }
             }
         }
@@ -73,14 +70,13 @@ bool Terrain::tryMove(int x, int y, int dx, int dy, uint8_t maxAmount) {
             }
 
             if (tiles_[x + dx][y + dy] == Tiles::WATER) {
-                if (dy > 0) {
-                    if (tiles_[x][y].fillLevel > tiles_[x + dx][y + dy].fillLevel && !tiles_[x][y].moved) {
-                        uint8_t missing = tiles_[x][y].fillLevel - tiles_[x + dx][y + dy].fillLevel;
+                if (dy == 0) {
+                    if (tiles_[x][y].fillLevel > tiles_[x + dx][y + dy].fillLevel) {
+                        uint8_t missing = (tiles_[x][y].fillLevel - tiles_[x + dx][y + dy].fillLevel) / 2;
                         uint8_t transfer = std::min(maxAmount, missing);
 
                         tiles_[x + dx][y + dy].fillLevel += transfer;
                         tiles_[x][y].fillLevel -= transfer;
-                        tiles_[x + dx][y + dy].moved = true;
                     }
                 }
                 else {
