@@ -28,9 +28,16 @@ Terrain::Terrain(const QSize &size) : size_(size) {
         if (y < dirtLevel - 5)
             tiles_[wd][y] = Tiles::DIRT_STABLE;
     }
+
+    waterHeatmap_.resize(size_.width());
+
+    for (int x = 0; x < size_.width(); ++x)
+        waterHeatmap_[x].resize(size_.height(), 0);
 }
 
 void Terrain::tick() {
+    updateWaterHeatmap();
+
     for (int x = 0; x < size_.width(); ++x)
         for (int y = 0; y < size_.height(); ++y)
             tiles_[x][y].moved = false;
@@ -71,7 +78,17 @@ void Terrain::tick() {
                         tiles_[x][y] = Tiles::SKY;
                     }
                     else {
-                        if (inBounds(x + dx, y) && tiles_[x + dx][y] == Tiles::SKY) {
+                        if (inBounds(x + 1, y) && inBounds(x - 1, y) && waterHeatmap_[x + 1][y] < waterHeatmap_[x - 1][y] && tiles_[x + 1][y] == Tiles::SKY) {
+                            tiles_[x][y].moved = true;
+                            tiles_[x + 1][y] = tiles_[x][y];
+                            tiles_[x][y] = Tiles::SKY;
+                        }
+                        else if (inBounds(x - 1, y) && inBounds(x + 1, y) && waterHeatmap_[x - 1][y] < waterHeatmap_[x + 1][y] && tiles_[x - 1][y] == Tiles::SKY) {
+                            tiles_[x][y].moved = true;
+                            tiles_[x - 1][y] = tiles_[x][y];
+                            tiles_[x][y] = Tiles::SKY;
+                        }
+                        else if (inBounds(x + dx, y) && tiles_[x + dx][y] == Tiles::SKY) {
                             tiles_[x][y].moved = true;
                             tiles_[x + dx][y] = tiles_[x][y];
                             tiles_[x][y] = Tiles::SKY;
@@ -96,4 +113,34 @@ bool Terrain::inBounds(int x, int y) {
 
 const QSize &Terrain::size() const {
     return size_;
+}
+
+const std::vector<std::vector<double> > &Terrain::waterHeatmap() const {
+    return waterHeatmap_;
+}
+
+void Terrain::updateWaterHeatmap() {
+    const int RAD = 5;
+
+    for (int x = 0; x < size_.width(); ++x) {
+        for (int y = 0; y < size_.height(); ++y) {
+            waterHeatmap_[x][y] = 0;
+        }
+    }
+
+    for (int x = 0; x < size_.width(); ++x) {
+        for (int y = 0; y < size_.height(); ++y) {
+            if (tiles_[x][y] == Tiles::WATER) {
+                for (int dx = -RAD + 1; dx < RAD; ++dx) {
+                    for (int dy = -RAD + 1; dy < RAD; ++dy) {
+                        double dist = sqrt(dx * dx + dy * dy);
+
+                        if (dist <= RAD && inBounds(x + dx, y + dy)) {
+                            waterHeatmap_[x + dx][y + dy] += RAD - dist;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

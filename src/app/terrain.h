@@ -17,10 +17,14 @@ class Terrain {
         bool inBounds(int x, int y);
 
         const QSize& size() const;
+        const std::vector<std::vector<double>>& waterHeatmap() const;
 
     private:
+        void updateWaterHeatmap();
+
         QSize size_;
         std::vector<std::vector<Tile>> tiles_;
+        std::vector<std::vector<double>> waterHeatmap_;
 };
 
 #endif // TERRAIN_H
