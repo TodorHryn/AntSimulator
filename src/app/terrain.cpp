@@ -70,11 +70,19 @@ void Terrain::tick() {
 }
 
 bool Terrain::tryMove(int x, int y, int dx, int dy) {
-    if (inBounds(x + dx, y + dy) && tiles_[x + dx][y + dy] == Tiles::SKY) {
-        tiles_[x][y].moved = true;
-        tiles_[x + dx][y + dy] = tiles_[x][y];
-        tiles_[x][y] = Tiles::SKY;
-        return true;
+    if (inBounds(x + dx, y + dy)) {
+        if (tiles_[x + dx][y + dy] == Tiles::SKY) {
+            tiles_[x][y].moved = true;
+            tiles_[x + dx][y + dy] = tiles_[x][y];
+            tiles_[x][y] = Tiles::SKY;
+            return true;
+        }
+        else if (tiles_[x][y] == Tiles::DIRT && tiles_[x + dx][y + dy] == Tiles::WATER) {
+            tiles_[x][y].moved = true;
+            tiles_[x + dx][y + dy] = tiles_[x][y];
+            tiles_[x][y] = Tiles::WATER;
+            return true;
+        }
     }
 
     return false;
