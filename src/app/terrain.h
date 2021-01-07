@@ -13,6 +13,8 @@ class Terrain {
 
         Tile& tile(int x, int y);
 
+        const QSize& size() const;
+
     private:
         QSize size_;
         std::vector<std::vector<Tile>> tiles_;

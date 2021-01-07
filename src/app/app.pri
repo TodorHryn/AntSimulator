@@ -6,4 +6,5 @@ HEADERS += \
     $$PWD/tiles.h
 
 SOURCES += \
-    $$PWD/terrain.cpp
+    $$PWD/terrain.cpp \
+    $$PWD/tiles.cpp

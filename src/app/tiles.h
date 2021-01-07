@@ -5,9 +5,9 @@
 #include <memory>
 
 namespace Tiles {
-    Tile SKY = {QColor::fromRgb(135, 206, 235), true};
-    Tile DIRT = {QColor::fromRgb(155, 118, 82), false};
-    Tile WATER = {QColor::fromRgb(42, 157, 244), false};
+    extern Tile SKY;
+    extern Tile DIRT;
+    extern Tile WATER;
 };
 
 #endif // TILES_H
