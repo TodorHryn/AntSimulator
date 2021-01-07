@@ -20,7 +20,10 @@ class Terrain {
         const std::vector<std::vector<double>>& waterHeatmap() const;
 
     private:
+        const int WATER_HEATMAP_RAD = 5;
+
         void updateWaterHeatmap();
+        bool tryMove(int x, int y, int dx, int dy);
 
         QSize size_;
         std::vector<std::vector<Tile>> tiles_;
