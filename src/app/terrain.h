@@ -11,7 +11,10 @@ class Terrain {
         Terrain(const Terrain&) = delete;
         Terrain& operator= (const Terrain&) = delete;
 
+        void tick();
+
         Tile& tile(int x, int y);
+        bool inBounds(int x, int y);
 
         const QSize& size() const;
 

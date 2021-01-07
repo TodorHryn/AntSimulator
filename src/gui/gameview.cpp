@@ -5,6 +5,10 @@
 
 GameView::GameView(QWidget *parent) : QWidget(parent), ui(new Ui::GameView), terrain_(QSize(200, 100)) {
     ui->setupUi(this);
+
+    tickTimer_ = new QTimer(this);
+    connect(tickTimer_, SIGNAL(timeout()), this, SLOT(nextTick()));
+    tickTimer_->start(1000.0 / 60);
 }
 
 GameView::~GameView() {
@@ -31,4 +35,9 @@ void GameView::paintEvent(QPaintEvent *event) {
     painter.drawLine(terrain_.size().width() * tileSize, 0, terrain_.size().width() * tileSize, terrain_.size().height() * tileSize);
 
     painter.restore();
+}
+
+void GameView::nextTick() {
+    terrain_.tick();
+    update();
 }

@@ -7,6 +7,7 @@
 namespace Tiles {
     extern Tile SKY;
     extern Tile DIRT;
+    extern Tile DIRT_STABLE;
     extern Tile WATER;
 };
 

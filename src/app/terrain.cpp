@@ -1,4 +1,5 @@
 #include "terrain.h"
+#include "rand.h"
 #include <stdexcept>
 
 Terrain::Terrain(const QSize &size) : size_(size) {
@@ -10,22 +11,87 @@ Terrain::Terrain(const QSize &size) : size_(size) {
         tiles_[x].resize(size_.height());
 
         for (int y = 0; y < size_.height(); ++y) {
-            if (y < dirtLevel)
+            if (y < dirtLevel || x > size_.width() / 2)
                 tiles_[x][y] = Tiles::SKY;
             else
                 tiles_[x][y] = Tiles::DIRT;
         }
     }
 
-    for (int x = 0; x < static_cast<double>(size_.width()) / 10; ++x)
-        tiles_[x][dirtLevel] = Tiles::WATER;
+    for (int y = dirtLevel; y > dirtLevel - size_.height() / 3; --y) {
+        int wd = static_cast<double>(size_.width()) / 10;
+
+        for (int x = 0; x < wd; ++x) {
+            tiles_[x][y] = Tiles::WATER;
+        }
+
+        if (y < dirtLevel - 5)
+            tiles_[wd][y] = Tiles::DIRT_STABLE;
+    }
+}
+
+void Terrain::tick() {
+    for (int x = 0; x < size_.width(); ++x)
+        for (int y = 0; y < size_.height(); ++y)
+            tiles_[x][y].moved = false;
+
+    for (int x = 0; x < size_.width(); ++x) {
+        for (int y = size_.height() - 1; y >= 0; --y) {
+            if (tiles_[x][y].moved)
+                continue;
+
+            if (tiles_[x][y] == Tiles::DIRT) {
+                if (inBounds(x, y + 1) && tiles_[x][y + 1] == Tiles::SKY) {
+                    tiles_[x][y].moved = true;
+                    tiles_[x][y + 1] = tiles_[x][y];
+                    tiles_[x][y] = Tiles::SKY;
+                }
+                else {
+                    int dx = Rand::intInRange(-1, 1);
+
+                    if (inBounds(x + dx, y + 1) && tiles_[x + dx][y + 1] == Tiles::SKY) {
+                        tiles_[x][y].moved = true;
+                        tiles_[x + dx][y + 1] = tiles_[x][y];
+                        tiles_[x][y] = Tiles::SKY;
+                    }
+                }
+            }
+            else if (tiles_[x][y] == Tiles::WATER) {
+                if (inBounds(x, y + 1) && tiles_[x][y + 1] == Tiles::SKY) {
+                    tiles_[x][y].moved = true;
+                    tiles_[x][y + 1] = tiles_[x][y];
+                    tiles_[x][y] = Tiles::SKY;
+                }
+                else {
+                    int dx = Rand::intInRange(-1, 1);
+
+                    if (inBounds(x + dx, y + 1) && tiles_[x + dx][y + 1] == Tiles::SKY) {
+                        tiles_[x][y].moved = true;
+                        tiles_[x + dx][y + 1] = tiles_[x][y];
+                        tiles_[x][y] = Tiles::SKY;
+                    }
+                    else {
+                        if (inBounds(x + dx, y) && tiles_[x + dx][y] == Tiles::SKY) {
+                            tiles_[x][y].moved = true;
+                            tiles_[x + dx][y] = tiles_[x][y];
+                            tiles_[x][y] = Tiles::SKY;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 Tile& Terrain::tile(int x, int y) {
-    if (x < 0 || y < 0 || x >= size_.width() || y >= size_.height())
+    if (!inBounds(x, y))
         throw std::out_of_range("Tile position out of bounds");
 
     return tiles_[x][y];
+}
+
+bool Terrain::inBounds(int x, int y) {
+    return x >= 0  && y >= 0 && x < size_.width() && y < size_.height();
 }
 
 const QSize &Terrain::size() const {

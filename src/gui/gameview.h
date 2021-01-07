@@ -1,8 +1,9 @@
 #ifndef GAMEVIEW_H
 #define GAMEVIEW_H
 
-#include <QWidget>
 #include "terrain.h"
+#include <QWidget>
+#include <QTimer>
 
 namespace Ui {
 class GameView;
@@ -17,9 +18,13 @@ class GameView : public QWidget {
 
         void paintEvent(QPaintEvent *event) override;
 
+    private slots:
+        void nextTick();
+
     private:
         Ui::GameView *ui;
 
+        QTimer *tickTimer_;
         Terrain terrain_;
 };
 
