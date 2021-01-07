@@ -46,7 +46,9 @@ void GameView::paintEvent(QPaintEvent *event) {
     painter.setCompositionMode(QPainter::CompositionMode_SourceAtop);
     for (int x = 0; x < terrain_.size().width(); ++x) {
         for (int y = 0; y < terrain_.size().height(); ++y) {
-            painter.fillRect(x * tileSize, y * tileSize, ceil(tileSize), ceil(tileSize), terrain_.tile(x, y).color);
+            double tileH = tileSize * terrain_.tile(x, y).fillLevel / UINT8_MAX;
+
+            painter.fillRect(x * tileSize, y * tileSize + (tileSize - tileH), ceil(tileSize), ceil(tileH), terrain_.tile(x, y).color);
             //painter.fillRect(x * tileSize, y * tileSize, ceil(tileSize), ceil(tileSize), getGradient(terrain_.waterHeatmap()[x][y], maxLevel));
         }
     }

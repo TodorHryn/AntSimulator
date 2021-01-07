@@ -53,15 +53,10 @@ void Terrain::tick() {
             }
             else if (tiles_[x][y] == Tiles::WATER) {
                 if (!tryMove(x, y, 0, 1)) {
-                    int dx = Rand::intInRange(-1, 1);
-
-                    if (!tryMove(x, y, dx, 1)) {
-                        if (inBounds(x + 1, y) && inBounds(x - 1, y) && waterHeatmap_[x + 1][y] < waterHeatmap_[x - 1][y] && tiles_[x + 1][y] == Tiles::SKY)
-                            tryMove(x, y, 1, 0);
-                        else if (inBounds(x - 1, y) && inBounds(x + 1, y) && waterHeatmap_[x - 1][y] < waterHeatmap_[x + 1][y] && tiles_[x - 1][y] == Tiles::SKY)
-                            tryMove(x, y, -1, 0);
-                        else
-                            tryMove(x, y, dx, 0);
+                    if (!tryMove(x, y, 1, 1, UINT8_MAX / 2) || !tryMove(x, y, -1, 1, UINT8_MAX / 2)) {
+                        tryMove(x, y, 1, 0, UINT8_MAX / 2);
+                        tryMove(x, y, -1, 0, UINT8_MAX / 2);
+                        //if (x < size_.width() - 1) tryMove(x, y, 1, 0, (tiles_[x][y].fillLevel - tiles_[x + 1][y].fillLevel) / 2);
                     }
                 }
             }
@@ -69,19 +64,51 @@ void Terrain::tick() {
     }
 }
 
-bool Terrain::tryMove(int x, int y, int dx, int dy) {
+bool Terrain::tryMove(int x, int y, int dx, int dy, uint8_t maxAmount) {
     if (inBounds(x + dx, y + dy)) {
-        if (tiles_[x + dx][y + dy] == Tiles::SKY) {
-            tiles_[x][y].moved = true;
-            tiles_[x + dx][y + dy] = tiles_[x][y];
-            tiles_[x][y] = Tiles::SKY;
-            return true;
+        if (tiles_[x][y] == Tiles::WATER) {
+            if (tiles_[x + dx][y + dy] == Tiles::SKY) {
+                tiles_[x + dx][y + dy] = Tiles::WATER;
+                tiles_[x + dx][y + dy].fillLevel = 0;
+            }
+
+            if (tiles_[x + dx][y + dy] == Tiles::WATER) {
+                if (dy > 0) {
+                    if (tiles_[x][y].fillLevel > tiles_[x + dx][y + dy].fillLevel && !tiles_[x][y].moved) {
+                        uint8_t missing = tiles_[x][y].fillLevel - tiles_[x + dx][y + dy].fillLevel;
+                        uint8_t transfer = std::min(maxAmount, missing);
+
+                        tiles_[x + dx][y + dy].fillLevel += transfer;
+                        tiles_[x][y].fillLevel -= transfer;
+                        tiles_[x + dx][y + dy].moved = true;
+                    }
+                }
+                else {
+                    uint8_t missing = UINT8_MAX - tiles_[x + dx][y + dy].fillLevel;
+                    uint8_t transfer = std::min(maxAmount, std::min(missing, tiles_[x][y].fillLevel));
+
+                    tiles_[x + dx][y + dy].fillLevel += transfer;
+                    tiles_[x][y].fillLevel -= transfer;
+                }
+
+                return tiles_[x][y].fillLevel == 0;
+            }
         }
-        else if (tiles_[x][y] == Tiles::DIRT && tiles_[x + dx][y + dy] == Tiles::WATER) {
-            tiles_[x][y].moved = true;
-            tiles_[x + dx][y + dy] = tiles_[x][y];
-            tiles_[x][y] = Tiles::WATER;
-            return true;
+        else if (tiles_[x][y] == Tiles::DIRT) {
+            if (tiles_[x + dx][y + dy] == Tiles::SKY) {
+                tiles_[x][y].moved = true;
+                tiles_[x + dx][y + dy] = tiles_[x][y];
+                tiles_[x][y] = Tiles::SKY;
+                return true;
+            }
+            else if (tiles_[x + dx][y + dy] == Tiles::WATER) {
+                Tile t = tiles_[x + dx][y + dy];
+
+                tiles_[x][y].moved = true;
+                tiles_[x + dx][y + dy] = tiles_[x][y];
+                tiles_[x][y] = t;
+                return true;
+            }
         }
     }
 

@@ -23,7 +23,7 @@ class Terrain {
         const int WATER_HEATMAP_RAD = 5;
 
         void updateWaterHeatmap();
-        bool tryMove(int x, int y, int dx, int dy);
+        bool tryMove(int x, int y, int dx, int dy, uint8_t maxAmount = UINT8_MAX);
 
         QSize size_;
         std::vector<std::vector<Tile>> tiles_;
