@@ -8,7 +8,7 @@ GameView::GameView(QWidget *parent) : QWidget(parent), ui(new Ui::GameView), ter
 
     tickTimer_ = new QTimer(this);
     connect(tickTimer_, SIGNAL(timeout()), this, SLOT(nextTick()));
-    tickTimer_->start(1000.0 / 600);
+    tickTimer_->start(1000.0 / 60);
 }
 
 GameView::~GameView() {
@@ -38,18 +38,12 @@ void GameView::paintEvent(QPaintEvent *event) {
     painter.fillRect(0, 0, painter.device()->width(), painter.device()->height(), Tiles::SKY.color);
     painter.translate(shift);
 
-    double maxLevel = 0;
-    for (int x = 0; x < terrain_.size().width(); ++x)
-        for (int y = 0; y < terrain_.size().height(); ++y)
-            maxLevel = std::max(maxLevel, terrain_.waterHeatmap()[x][y]);
-
     painter.setCompositionMode(QPainter::CompositionMode_SourceAtop);
     for (int x = 0; x < terrain_.size().width(); ++x) {
         for (int y = 0; y < terrain_.size().height(); ++y) {
             double tileH = tileSize * terrain_.tile(x, y).fillLevel / UINT8_MAX;
 
             painter.fillRect(x * tileSize, y * tileSize + (tileSize - tileH), ceil(tileSize), ceil(tileH), terrain_.tile(x, y).color);
-            //painter.fillRect(x * tileSize, y * tileSize, ceil(tileSize), ceil(tileSize), getGradient(terrain_.waterHeatmap()[x][y], maxLevel));
         }
     }
     painter.drawLine(0, 0, 0, terrain_.size().height() * tileSize);
@@ -59,6 +53,7 @@ void GameView::paintEvent(QPaintEvent *event) {
 }
 
 void GameView::nextTick() {
+    terrain_.tick();
     terrain_.tick();
     update();
 }

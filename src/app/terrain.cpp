@@ -28,16 +28,9 @@ Terrain::Terrain(const QSize &size) : size_(size) {
         if (y < dirtLevel - 8)
             tiles_[wd][y] = Tiles::DIRT_STABLE;
     }
-
-    waterHeatmap_.resize(size_.width());
-
-    for (int x = 0; x < size_.width(); ++x)
-        waterHeatmap_[x].resize(size_.height(), 0);
 }
 
 void Terrain::tick() {
-    updateWaterHeatmap();
-
     for (int x = 0; x < size_.width(); ++x)
         for (int y = 0; y < size_.height(); ++y)
             tiles_[x][y].moved = false;
@@ -125,32 +118,4 @@ bool Terrain::inBounds(int x, int y) {
 
 const QSize &Terrain::size() const {
     return size_;
-}
-
-const std::vector<std::vector<double> > &Terrain::waterHeatmap() const {
-    return waterHeatmap_;
-}
-
-void Terrain::updateWaterHeatmap() {
-    for (int x = 0; x < size_.width(); ++x) {
-        for (int y = 0; y < size_.height(); ++y) {
-            waterHeatmap_[x][y] = 0;
-        }
-    }
-
-    for (int x = 0; x < size_.width(); ++x) {
-        for (int y = 0; y < size_.height(); ++y) {
-            if (tiles_[x][y] == Tiles::WATER) {
-                for (int dx = -WATER_HEATMAP_RAD + 1; dx < WATER_HEATMAP_RAD; ++dx) {
-                    for (int dy = -WATER_HEATMAP_RAD + 1; dy < WATER_HEATMAP_RAD; ++dy) {
-                        double dist = sqrt(dx * dx + dy * dy);
-
-                        if (dist <= WATER_HEATMAP_RAD && inBounds(x + dx, y + dy)) {
-                            waterHeatmap_[x + dx][y + dy] += WATER_HEATMAP_RAD - dist;
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
