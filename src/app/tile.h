@@ -12,6 +12,10 @@ struct Tile {
     bool operator==(const Tile &tile) {
         return color == tile.color && isEmpty == tile.isEmpty;
     }
+
+    bool operator!=(const Tile &tile) {
+        return !(*this == tile);
+    }
 };
 
 #endif // TILE_H

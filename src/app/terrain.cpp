@@ -54,51 +54,62 @@ void Terrain::tick() {
     }
 }
 
-bool Terrain::tryMove(int x, int y, int dx, int dy, uint8_t maxAmount) {
+bool Terrain::tryMove(int x, int y, int dx, int dy) {
     if (inBounds(x + dx, y + dy)) {
-        if (tiles_[x][y] == Tiles::WATER) {
-            if (tiles_[x + dx][y + dy] == Tiles::SKY) {
-                tiles_[x + dx][y + dy] = Tiles::WATER;
-                tiles_[x + dx][y + dy].fillLevel = 0;
-            }
+        if (tiles_[x][y] == Tiles::WATER)
+            tryMoveLiquid(x, y, dx, dy);
+        else if (tiles_[x][y] == Tiles::DIRT)
+            tryMoveSolid(x, y, dx, dy);
+    }
 
-            if (tiles_[x + dx][y + dy] == Tiles::WATER) {
-                if (dy == 0) {
-                    if (tiles_[x][y].fillLevel > tiles_[x + dx][y + dy].fillLevel) {
-                        uint8_t missing = (tiles_[x][y].fillLevel - tiles_[x + dx][y + dy].fillLevel) / 2;
-                        uint8_t transfer = std::min(maxAmount, missing);
+    return false;
+}
 
-                        tiles_[x + dx][y + dy].fillLevel += transfer;
-                        tiles_[x][y].fillLevel -= transfer;
-                    }
-                }
-                else {
-                    uint8_t missing = UINT8_MAX - tiles_[x + dx][y + dy].fillLevel;
-                    uint8_t transfer = std::min(maxAmount, std::min(missing, tiles_[x][y].fillLevel));
+bool Terrain::tryMoveLiquid(int x, int y, int dx, int dy) {
+    if (tiles_[x][y] != Tiles::WATER)
+        throw std::invalid_argument("tryMoveLiquid can only be called on liquids");
 
-                    tiles_[x + dx][y + dy].fillLevel += transfer;
-                    tiles_[x][y].fillLevel -= transfer;
-                }
+    if (tiles_[x + dx][y + dy] == Tiles::SKY) {
+        tiles_[x + dx][y + dy] = Tiles::WATER;
+        tiles_[x + dx][y + dy].fillLevel = 0;
+    }
 
-                return tiles_[x][y].fillLevel == 0;
-            }
+    if (tiles_[x + dx][y + dy] == Tiles::WATER) {
+        uint8_t toTransfer = 0;
+
+        if (dy == 0) {
+            if (tiles_[x][y].fillLevel > tiles_[x + dx][y + dy].fillLevel)
+                toTransfer = (tiles_[x][y].fillLevel - tiles_[x + dx][y + dy].fillLevel) / 2;
         }
-        else if (tiles_[x][y] == Tiles::DIRT) {
-            if (tiles_[x + dx][y + dy] == Tiles::SKY) {
-                tiles_[x][y].moved = true;
-                tiles_[x + dx][y + dy] = tiles_[x][y];
-                tiles_[x][y] = Tiles::SKY;
-                return true;
-            }
-            else if (tiles_[x + dx][y + dy] == Tiles::WATER) {
-                Tile t = tiles_[x + dx][y + dy];
+        else
+            toTransfer = std::min(static_cast<uint8_t>(UINT8_MAX - tiles_[x + dx][y + dy].fillLevel), tiles_[x][y].fillLevel);
 
-                tiles_[x][y].moved = true;
-                tiles_[x + dx][y + dy] = tiles_[x][y];
-                tiles_[x][y] = t;
-                return true;
-            }
-        }
+        tiles_[x + dx][y + dy].fillLevel += toTransfer;
+        tiles_[x][y].fillLevel -= toTransfer;
+
+        return tiles_[x][y].fillLevel == 0;
+    }
+
+    return false;
+}
+
+bool Terrain::tryMoveSolid(int x, int y, int dx, int dy) {
+    if (tiles_[x][y] != Tiles::DIRT)
+        throw std::invalid_argument("tryMoveSolid can only be called on solid tiles");
+
+    if (tiles_[x + dx][y + dy] == Tiles::SKY) {
+        tiles_[x][y].moved = true;
+        tiles_[x + dx][y + dy] = tiles_[x][y];
+        tiles_[x][y] = Tiles::SKY;
+        return true;
+    }
+    else if (tiles_[x + dx][y + dy] == Tiles::WATER) {
+        Tile t = tiles_[x + dx][y + dy];
+
+        tiles_[x][y].moved = true;
+        tiles_[x + dx][y + dy] = tiles_[x][y];
+        tiles_[x][y] = t;
+        return true;
     }
 
     return false;

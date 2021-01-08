@@ -19,7 +19,9 @@ class Terrain {
         const QSize& size() const;
 
     private:
-        bool tryMove(int x, int y, int dx, int dy, uint8_t maxAmount = UINT8_MAX);
+        bool tryMove(int x, int y, int dx, int dy);
+        bool tryMoveLiquid(int x, int y, int dx, int dy);
+        bool tryMoveSolid(int x, int y, int dx, int dy);
 
         QSize size_;
         std::vector<std::vector<Tile>> tiles_;
