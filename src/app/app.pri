@@ -1,12 +1,16 @@
 INCLUDEPATH += $$PWD
 
 HEADERS += \
+    $$PWD/ant.h \
+    $$PWD/gameengine.h \
     $$PWD/rand.h \
     $$PWD/terrain.h \
     $$PWD/tile.h \
     $$PWD/tiles.h
 
 SOURCES += \
+    $$PWD/ant.cpp \
+    $$PWD/gameengine.cpp \
     $$PWD/rand.cpp \
     $$PWD/terrain.cpp \
     $$PWD/tiles.cpp

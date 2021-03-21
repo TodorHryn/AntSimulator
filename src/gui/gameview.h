@@ -1,7 +1,7 @@
 #ifndef GAMEVIEW_H
 #define GAMEVIEW_H
 
-#include "terrain.h"
+#include "gameengine.h"
 #include <QWidget>
 #include <QTimer>
 
@@ -25,7 +25,7 @@ class GameView : public QWidget {
         Ui::GameView *ui;
 
         QTimer *tickTimer_;
-        Terrain terrain_;
+        GameEngine engine_;
 };
 
 #endif // GAMEVIEW_H

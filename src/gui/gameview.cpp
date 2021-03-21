@@ -3,8 +3,10 @@
 #include <QSize>
 #include <QPainter>
 
-GameView::GameView(QWidget *parent) : QWidget(parent), ui(new Ui::GameView), terrain_(QSize(200, 100)) {
+GameView::GameView(QWidget *parent) : QWidget(parent), ui(new Ui::GameView), engine_(QSize(200, 100)) {
     ui->setupUi(this);
+
+    engine_.ants().push_back(Ant(QVector2D(50, 50)));
 
     tickTimer_ = new QTimer(this);
     connect(tickTimer_, SIGNAL(timeout()), this, SLOT(nextTick()));
@@ -30,30 +32,35 @@ QColor getGradient(double level, double maxLevel) {
 void GameView::paintEvent(QPaintEvent *event) {
     QPainter painter(this);
     QSizeF size_ = painter.window().size();
+    Terrain &terrain = engine_.terrain();
 
-    double tileSize = std::min(size_.width() / terrain_.size().width(), size_.height() / terrain_.size().height());
-    QPoint shift((size_.width() - terrain_.size().width() * tileSize) / 2, size_.height() - terrain_.size().height() * tileSize);
+    double tileSize = std::min(size_.width() / terrain.size().width(), size_.height() / terrain.size().height());
+    QPoint shift((size_.width() - terrain.size().width() * tileSize) / 2, size_.height() - terrain.size().height() * tileSize);
 
     painter.save();
     painter.fillRect(0, 0, painter.device()->width(), painter.device()->height(), Tiles::SKY.color);
     painter.translate(shift);
 
     painter.setCompositionMode(QPainter::CompositionMode_SourceAtop);
-    for (int x = 0; x < terrain_.size().width(); ++x) {
-        for (int y = 0; y < terrain_.size().height(); ++y) {
-            double tileH = tileSize * terrain_.tile(x, y).fillLevel / UINT8_MAX;
+    for (int x = 0; x < terrain.size().width(); ++x) {
+        for (int y = 0; y < terrain.size().height(); ++y) {
+            double tileH = tileSize * terrain.tile(x, y).fillLevel / UINT8_MAX;
 
-            painter.fillRect(x * tileSize, y * tileSize + (tileSize - tileH), ceil(tileSize), ceil(tileH), terrain_.tile(x, y).color);
+            painter.fillRect(x * tileSize, y * tileSize + (tileSize - tileH), ceil(tileSize), ceil(tileH), terrain.tile(x, y).color);
         }
     }
-    painter.drawLine(0, 0, 0, terrain_.size().height() * tileSize);
-    painter.drawLine(terrain_.size().width() * tileSize, 0, terrain_.size().width() * tileSize, terrain_.size().height() * tileSize);
+    painter.drawLine(0, 0, 0, terrain.size().height() * tileSize);
+    painter.drawLine(terrain.size().width() * tileSize, 0, terrain.size().width() * tileSize, terrain.size().height() * tileSize);
+
+    painter.setBrush(Qt::black);
+    for (Ant& ant : engine_.ants()) {
+        painter.drawEllipse(ant.position().x() * tileSize, ant.position().y() * tileSize, 10, 10);
+    }
 
     painter.restore();
 }
 
 void GameView::nextTick() {
-    terrain_.tick();
-    terrain_.tick();
+    engine_.tick();
     update();
 }
