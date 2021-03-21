@@ -21,7 +21,7 @@ Terrain::Terrain(const QSize &size) : size_(size) {
     for (int y = dirtLevel; y > dirtLevel - size_.height() / 3; --y) {
         int wd = static_cast<double>(size_.width()) / 10;
 
-        for (int x = 0; x < wd; ++x) {
+        for (int x = size_.width() - wd; x < size_.width(); ++x) {
             tiles_[x][y] = Tiles::WATER;
         }
 
