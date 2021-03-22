@@ -2,6 +2,7 @@
 #include "ui_gameview.h"
 #include <QSize>
 #include <QPainter>
+#include <iostream>
 
 GameView::GameView(QWidget *parent) : QWidget(parent), ui(new Ui::GameView), engine_(QSize(200, 100)) {
     ui->setupUi(this);
@@ -9,8 +10,8 @@ GameView::GameView(QWidget *parent) : QWidget(parent), ui(new Ui::GameView), eng
     for (int i = 0; i < 1; ++i)
         engine_.ants().emplace_back(engine_, QVector2D(50, 50));
 
-    engine_.food().emplace_back(QVector2D(100, 50), 50);
-    engine_.food().emplace_back(QVector2D(50, 10), 50);
+    engine_.addFood(Food(QVector2D(100, 50), 50));
+    engine_.addFood(Food(QVector2D(50, 10), 50));
 
     tickTimer_ = new QTimer(this);
     connect(tickTimer_, SIGNAL(timeout()), this, SLOT(nextTick()));
@@ -45,12 +46,20 @@ void GameView::paintEvent(QPaintEvent *event) {
     painter.fillRect(0, 0, painter.device()->width(), painter.device()->height(), Tiles::SKY.color);
     painter.translate(shift);
 
+    double maxHeatmapValue = 0;
+    for (int x = 0; x < terrain.size().width(); ++x) {
+        for (int y = 0; y < terrain.size().height(); ++y) {
+            maxHeatmapValue = std::max(maxHeatmapValue, engine_.foodHeatmap()[x][y]);
+        }
+    }
+
     painter.setCompositionMode(QPainter::CompositionMode_SourceAtop);
     for (int x = 0; x < terrain.size().width(); ++x) {
         for (int y = 0; y < terrain.size().height(); ++y) {
             double tileH = tileSize * terrain.tile(x, y).fillLevel / UINT8_MAX;
 
             painter.fillRect(x * tileSize, y * tileSize + (tileSize - tileH), ceil(tileSize), ceil(tileH), terrain.tile(x, y).color);
+            painter.fillRect(x * tileSize, y * tileSize, ceil(tileSize), ceil(tileSize), getGradient(engine_.foodHeatmap()[x][y], maxHeatmapValue));
         }
     }
     painter.drawLine(0, 0, 0, terrain.size().height() * tileSize);

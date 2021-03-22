@@ -1,6 +1,6 @@
 #include "gameengine.h"
 
-GameEngine::GameEngine(const QSize &terrainSize) : terrain_(terrainSize) {
+GameEngine::GameEngine(const QSize &terrainSize) : terrain_(terrainSize), foodHeatmap_(*this, terrainSize) {
 
 }
 
@@ -10,6 +10,11 @@ void GameEngine::tick() {
 
     for (Ant& ant : ants_)
         ant.tick();
+}
+
+void GameEngine::addFood(const Food &fd) {
+    food_.push_back(fd);
+    foodHeatmap_.apply(fd.position().x(), fd.position().y(), 128);
 }
 
 Terrain &GameEngine::terrain() {
@@ -22,4 +27,8 @@ std::vector<Ant> &GameEngine::ants() {
 
 std::vector<Food> &GameEngine::food() {
     return food_;
+}
+
+Heatmap &GameEngine::foodHeatmap() {
+    return foodHeatmap_;
 }
