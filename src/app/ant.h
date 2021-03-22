@@ -14,13 +14,14 @@ class Ant {
         void tick();
 
         QVector2D position() const;
+        QVector2D forwardDirection() const;
 
-        qreal speed_ = 0.05;
-        QVector2D forwardDirection_ = {1.0, 0.0};
     private:
         GameEngine &engine_;
 
         QVector2D position_;
+        qreal speed_ = 0.15;
+        QVector2D forwardDirection_ = {1.0, 0.0};
 };
 
 #endif // ANT_H

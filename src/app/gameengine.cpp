@@ -19,3 +19,7 @@ Terrain &GameEngine::terrain() {
 std::vector<Ant> &GameEngine::ants() {
     return ants_;
 }
+
+std::vector<Food> &GameEngine::food() {
+    return food_;
+}

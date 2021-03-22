@@ -4,11 +4,17 @@
 #include <QTransform>
 
 Ant::Ant(GameEngine &engine) : engine_(engine) {
+    forwardDirection_ = QVector2D(rand() % 100 - 50, rand() % 100 - 50).normalized();
 
+    if (forwardDirection_.length() < 0.5)
+        forwardDirection_ = QVector2D(1.0, 0.0);
 }
 
 Ant::Ant(GameEngine &engine, const QVector2D &pos) : engine_(engine), position_(pos) {
+    forwardDirection_ = QVector2D(rand() % 100 - 50, rand() % 100 - 50).normalized();
 
+    if (forwardDirection_.length() < 0.5)
+        forwardDirection_ = QVector2D(1.0, 0.0);
 }
 
 void Ant::tick() {
@@ -42,4 +48,8 @@ void Ant::tick() {
 
 QVector2D Ant::position() const {
     return position_;
+}
+
+QVector2D Ant::forwardDirection() const {
+    return forwardDirection_;
 }

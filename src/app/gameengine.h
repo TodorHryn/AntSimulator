@@ -3,6 +3,7 @@
 
 #include "terrain.h"
 #include "ant.h"
+#include "food.h"
 #include <vector>
 
 class GameEngine {
@@ -13,9 +14,11 @@ class GameEngine {
 
         Terrain& terrain();
         std::vector<Ant>& ants();
+        std::vector<Food>& food();
 
     private:
         std::vector<Ant> ants_;
+        std::vector<Food> food_;
         Terrain terrain_;
 };
 

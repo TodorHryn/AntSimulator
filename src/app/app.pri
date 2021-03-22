@@ -2,6 +2,7 @@ INCLUDEPATH += $$PWD
 
 HEADERS += \
     $$PWD/ant.h \
+    $$PWD/food.h \
     $$PWD/gameengine.h \
     $$PWD/rand.h \
     $$PWD/terrain.h \
@@ -10,6 +11,7 @@ HEADERS += \
 
 SOURCES += \
     $$PWD/ant.cpp \
+    $$PWD/food.cpp \
     $$PWD/gameengine.cpp \
     $$PWD/rand.cpp \
     $$PWD/terrain.cpp \
