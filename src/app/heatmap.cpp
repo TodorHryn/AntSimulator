@@ -30,22 +30,22 @@ void Heatmap::apply(int x, int y, double amount) {
                 if (engine_.terrain().tile(x, y).empty()) {
                     double val = fragment[x - x1][y - y1];
 
-                    if (x > x1 && fragment[x - x1 - 1][y - y1] / 2 > val) {
+                    if (x > x1 && fragment[x - x1 - 1][y - y1] / 2 > val && fragment[x - x1 - 1][y - y1] >= 2) {
                         val = fragment[x - x1 - 1][y - y1] / 2;
                         updated = true;
                     }
 
-                    if (x < x2 && fragment[x - x1 + 1][y - y1] / 2 > val) {
+                    if (x < x2 && fragment[x - x1 + 1][y - y1] / 2 > val && fragment[x - x1 + 1][y - y1] >= 2) {
                         val = fragment[x - x1 + 1][y - y1] / 2;
                         updated = true;
                     }
 
-                    if (y > y1 && fragment[x - x1][y - y1 - 1] / 2 > val) {
+                    if (y > y1 && fragment[x - x1][y - y1 - 1] / 2 > val && fragment[x - x1][y - y1 - 1] >= 2) {
                         val = fragment[x - x1][y - y1 - 1] / 2;
                         updated = true;
                     }
 
-                    if (y < y2 && fragment[x - x1][y - y1 + 1] / 2 > val) {
+                    if (y < y2 && fragment[x - x1][y - y1 + 1] / 2 > val && fragment[x - x1][y - y1 + 1] >= 2) {
                         val = fragment[x - x1][y - y1 + 1] / 2;
                         updated = true;
                     }

@@ -14,7 +14,7 @@ void GameEngine::tick() {
 
 void GameEngine::addFood(const Food &fd) {
     food_.push_back(fd);
-    foodHeatmap_.apply(fd.position().x(), fd.position().y(), 128);
+    foodHeatmap_.apply(fd.position().x(), fd.position().y(), 1024);
 }
 
 Terrain &GameEngine::terrain() {

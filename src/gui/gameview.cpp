@@ -3,15 +3,16 @@
 #include <QSize>
 #include <QPainter>
 #include <iostream>
+#include <QtMath>
 
 GameView::GameView(QWidget *parent) : QWidget(parent), ui(new Ui::GameView), engine_(QSize(200, 100)) {
     ui->setupUi(this);
 
-    for (int i = 0; i < 1; ++i)
+    for (int i = 0; i < 10; ++i)
         engine_.ants().emplace_back(engine_, QVector2D(50, 50));
 
     engine_.addFood(Food(QVector2D(100, 50), 50));
-    engine_.addFood(Food(QVector2D(50, 10), 50));
+    engine_.addFood(Food(QVector2D(22, 56), 50));
 
     tickTimer_ = new QTimer(this);
     connect(tickTimer_, SIGNAL(timeout()), this, SLOT(nextTick()));
