@@ -6,7 +6,7 @@
 GameView::GameView(QWidget *parent) : QWidget(parent), ui(new Ui::GameView), engine_(QSize(200, 100)) {
     ui->setupUi(this);
 
-    engine_.ants().push_back(Ant(QVector2D(50, 50)));
+    engine_.ants().emplace_back(engine_, QVector2D(50, 50));
 
     tickTimer_ = new QTimer(this);
     connect(tickTimer_, SIGNAL(timeout()), this, SLOT(nextTick()));
@@ -55,6 +55,8 @@ void GameView::paintEvent(QPaintEvent *event) {
     painter.setBrush(Qt::black);
     for (Ant& ant : engine_.ants()) {
         painter.drawEllipse(ant.position().x() * tileSize, ant.position().y() * tileSize, 10, 10);
+        painter.drawEllipse((ant.position().x() + ant.forwardDirection_.x() * 0.45) * tileSize, (ant.position().y() + ant.forwardDirection_.y() * 0.45) * tileSize, 10, 10);
+        painter.drawEllipse((ant.position().x() + ant.forwardDirection_.x() * 0.9) * tileSize, (ant.position().y() + ant.forwardDirection_.y() * 0.9) * tileSize, 10, 10);
     }
 
     painter.restore();
