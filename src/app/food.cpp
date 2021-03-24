@@ -4,6 +4,13 @@ Food::Food(const QVector2D &pos, int foodAmount) : position_(pos), amount_(foodA
 
 }
 
+int Food::take(int amountToTake) {
+    amountToTake = std::min(amountToTake, amount_);
+    amount_ -= amountToTake;
+
+    return amountToTake;
+}
+
 int Food::amount() const {
     return amount_;
 }

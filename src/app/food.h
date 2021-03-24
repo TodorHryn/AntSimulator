@@ -7,6 +7,8 @@ class Food {
     public:
         explicit Food(const QVector2D &pos, int foodAmount);
 
+        int take(int amountToTake);
+
         int amount() const;
         QVector2D position() const;
 

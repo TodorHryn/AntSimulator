@@ -23,9 +23,11 @@ void Ant::tick() {
         foodFound = getRotationAngleFromHeatmap(engine_.foodHeatmap(), rotationAmount);
 
         if (foodFound) {
-            for (Food &food : engine_.food())
-                if ((food.position() - position_).length() <= 1)
-                    foodCarried_ = std::min(foodCarried_ + 1, MAX_FOOD_CARRIED);
+            for (Food &food : engine_.food()) {
+                if ((food.position() - position_).length() <= 1 && foodCarried_ < MAX_FOOD_CARRIED) {
+                    foodCarried_ += food.take(MAX_FOOD_CARRIED - foodCarried_);
+                }
+            }
         }
     }
 

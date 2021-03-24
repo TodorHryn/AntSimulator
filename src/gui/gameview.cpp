@@ -47,7 +47,7 @@ void GameView::paintEvent(QPaintEvent *event) {
     painter.fillRect(0, 0, painter.device()->width(), painter.device()->height(), Tiles::SKY.color);
     painter.translate(shift);
 
-    long long maxHeatmapValue = 0;
+    long long maxHeatmapValue = 1;
     for (int x = 0; x < terrain.size().width(); ++x) {
         for (int y = 0; y < terrain.size().height(); ++y) {
             maxHeatmapValue = std::max(maxHeatmapValue, engine_.foodHeatmap()[x][y]);

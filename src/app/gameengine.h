@@ -13,6 +13,7 @@ class GameEngine {
 
         void tick();
         void addFood(const Food &fd);
+        void removeFood(int index);
 
         Terrain& terrain();
         std::vector<Ant>& ants();

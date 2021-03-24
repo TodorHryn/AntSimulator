@@ -13,8 +13,8 @@ void Heatmap::apply(int x, int y, long long amount) {
 
     int x1 = std::max(0, x - fragmentSize);
     int y1 = std::max(0, y - fragmentSize);
-    int x2 = std::min(engine_.terrain().size().width() - 1, x + fragmentSize);
-    int y2 = std::min(engine_.terrain().size().height() - 1, y + fragmentSize);
+    int x2 = std::min(size_.width() - 1, x + fragmentSize);
+    int y2 = std::min(size_.height() - 1, y + fragmentSize);
 
     bool updated;
     std::vector<std::vector<long long>> fragment(fragmentSize * 2 + 1);
@@ -62,6 +62,12 @@ void Heatmap::apply(int x, int y, long long amount) {
             values_[x][y] = std::max(values_[x][y], fragment[x - x1][y - y1]);
         }
     }
+}
+
+void Heatmap::clear() {
+    for (int x = 0; x < size_.width(); ++x)
+        for (int y = 0; y < size_.height(); ++y)
+            values_[x][y] = 0;
 }
 
 std::vector<long long>& Heatmap::operator[](int pos) {

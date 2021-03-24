@@ -11,6 +11,7 @@ class Heatmap {
         explicit Heatmap(GameEngine &engine, const QSize &heatmapSize);
 
         void apply(int x, int y, long long amount);
+        void clear();
 
         std::vector<long long>& operator[](int pos);
         const std::vector<long long>& operator[](int pos) const;
