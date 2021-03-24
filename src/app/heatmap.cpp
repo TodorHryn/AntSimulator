@@ -8,7 +8,7 @@ Heatmap::Heatmap(GameEngine &engine, const QSize &heatmapSize) : engine_(engine)
         values_[i].resize(size_.height(), 0);
 }
 
-void Heatmap::apply(int x, int y, double amount) {
+void Heatmap::apply(int x, int y, long long amount) {
     int fragmentSize = ceil(log2(amount));
 
     int x1 = std::max(0, x - fragmentSize);
@@ -17,7 +17,7 @@ void Heatmap::apply(int x, int y, double amount) {
     int y2 = std::min(engine_.terrain().size().height() - 1, y + fragmentSize);
 
     bool updated;
-    std::vector<std::vector<double>> fragment(fragmentSize * 2 + 1);
+    std::vector<std::vector<long long>> fragment(fragmentSize * 2 + 1);
     for (int i = 0; i < fragmentSize * 2 + 1; ++i)
         fragment[i].resize(fragmentSize * 2 + 1, 0);
     fragment[x - x1][y - y1] = amount;
@@ -64,6 +64,10 @@ void Heatmap::apply(int x, int y, double amount) {
     }
 }
 
-std::vector<double>& Heatmap::operator[](int pos) {
+std::vector<long long>& Heatmap::operator[](int pos) {
+    return values_[pos];
+}
+
+const std::vector<long long> &Heatmap::operator[](int pos) const {
     return values_[pos];
 }

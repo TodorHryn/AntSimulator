@@ -8,7 +8,7 @@
 GameView::GameView(QWidget *parent) : QWidget(parent), ui(new Ui::GameView), engine_(QSize(200, 100)) {
     ui->setupUi(this);
 
-    for (int i = 0; i < 10; ++i)
+    for (int i = 0; i < 1000; ++i)
         engine_.ants().emplace_back(engine_, QVector2D(50, 50));
 
     engine_.addFood(Food(QVector2D(100, 50), 50));
@@ -47,7 +47,7 @@ void GameView::paintEvent(QPaintEvent *event) {
     painter.fillRect(0, 0, painter.device()->width(), painter.device()->height(), Tiles::SKY.color);
     painter.translate(shift);
 
-    double maxHeatmapValue = 0;
+    long long maxHeatmapValue = 0;
     for (int x = 0; x < terrain.size().width(); ++x) {
         for (int y = 0; y < terrain.size().height(); ++y) {
             maxHeatmapValue = std::max(maxHeatmapValue, engine_.foodHeatmap()[x][y]);
@@ -67,10 +67,17 @@ void GameView::paintEvent(QPaintEvent *event) {
     painter.drawLine(terrain.size().width() * tileSize, 0, terrain.size().width() * tileSize, terrain.size().height() * tileSize);
 
     painter.setBrush(Qt::black);
-    for (Ant& ant : engine_.ants()) {
+    for (Ant &ant : engine_.ants()) {
         painter.drawEllipse(ant.position().x() * tileSize, ant.position().y() * tileSize, 10, 10);
         painter.drawEllipse((ant.position().x() + ant.forwardDirection().x() * 0.45) * tileSize, (ant.position().y() + ant.forwardDirection().y() * 0.45) * tileSize, 10, 10);
+
+        if (ant.foodCarried() != 0)
+            painter.setBrush(Qt::green);
+
         painter.drawEllipse((ant.position().x() + ant.forwardDirection().x() * 0.9) * tileSize, (ant.position().y() + ant.forwardDirection().y() * 0.9) * tileSize, 10, 10);
+
+        if (ant.foodCarried() != 0)
+            painter.setBrush(Qt::black);
     }
 
     painter.setPen(Qt::darkGreen);
