@@ -47,7 +47,7 @@ void GameView::paintEvent(QPaintEvent *event) {
     painter.fillRect(0, 0, painter.device()->width(), painter.device()->height(), Tiles::SKY.color);
     painter.translate(shift);
 
-    Heatmap &heatmapToShow = engine_.foodHeatmap();
+    Heatmap &heatmapToShow = engine_.colonyHeatmap();
     long long maxHeatmapValue = 1;
     long long minHeatmapValue = 0;
     for (int x = 0; x < terrain.size().width(); ++x) {
