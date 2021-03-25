@@ -1,5 +1,7 @@
 #include "heatmap.h"
 #include "gameengine.h"
+#include <queue>
+#include <algorithm>
 
 Heatmap::Heatmap(GameEngine &engine, const QSize &heatmapSize) : engine_(engine), size_(heatmapSize) {
     values_.resize(size_.width());
@@ -9,57 +11,47 @@ Heatmap::Heatmap(GameEngine &engine, const QSize &heatmapSize) : engine_(engine)
 }
 
 void Heatmap::apply(int x, int y, long long amount) {
-    int fragmentSize = ceil(log2(amount));
+    std::queue<std::pair<int, int>> updateQueue;
+    updateQueue.push(std::make_pair(x - 1, y));
+    updateQueue.push(std::make_pair(x + 1, y));
+    updateQueue.push(std::make_pair(x, y - 1));
+    updateQueue.push(std::make_pair(x, y + 1));
+    values_[x][y] = amount;
 
-    int x1 = std::max(0, x - fragmentSize);
-    int y1 = std::max(0, y - fragmentSize);
-    int x2 = std::min(size_.width() - 1, x + fragmentSize);
-    int y2 = std::min(size_.height() - 1, y + fragmentSize);
+    while (!updateQueue.empty()) {
+        int x = updateQueue.front().first;
+        int y = updateQueue.front().second;
+        bool updated = false;
+        updateQueue.pop();
 
-    bool updated;
-    std::vector<std::vector<long long>> fragment(fragmentSize * 2 + 1);
-    for (int i = 0; i < fragmentSize * 2 + 1; ++i)
-        fragment[i].resize(fragmentSize * 2 + 1, 0);
-    fragment[x - x1][y - y1] = amount;
+        if (x < 0 || y < 0 || x > size_.width() - 1 || y > size_.height() - 1)
+            continue;
 
-    do {
-        updated = false;
-
-        for (int x = x1; x <= x2; ++x) {
-            for (int y = y1; y <= y2; ++y) {
-                if (engine_.terrain().tile(x, y).empty()) {
-                    double val = fragment[x - x1][y - y1];
-
-                    if (x > x1 && fragment[x - x1 - 1][y - y1] / 2 > val && fragment[x - x1 - 1][y - y1] >= 2) {
-                        val = fragment[x - x1 - 1][y - y1] / 2;
-                        updated = true;
-                    }
-
-                    if (x < x2 && fragment[x - x1 + 1][y - y1] / 2 > val && fragment[x - x1 + 1][y - y1] >= 2) {
-                        val = fragment[x - x1 + 1][y - y1] / 2;
-                        updated = true;
-                    }
-
-                    if (y > y1 && fragment[x - x1][y - y1 - 1] / 2 > val && fragment[x - x1][y - y1 - 1] >= 2) {
-                        val = fragment[x - x1][y - y1 - 1] / 2;
-                        updated = true;
-                    }
-
-                    if (y < y2 && fragment[x - x1][y - y1 + 1] / 2 > val && fragment[x - x1][y - y1 + 1] >= 2) {
-                        val = fragment[x - x1][y - y1 + 1] / 2;
-                        updated = true;
-                    }
-
-                    fragment[x - x1][y - y1] = val;
-                }
-            }
+        if (x > 0 && values_[x - 1][y] / 2 > values_[x][y] && values_[x - 1][y] >= 2) {
+            values_[x][y] = values_[x - 1][y] / 2;
+            updated = true;
         }
-    }
-    while (updated);
 
-    for (int x = x1; x <= x2; ++x) {
-        for (int y = y1; y <= y2; ++y) {
-            values_[x][y] = std::max(values_[x][y], fragment[x - x1][y - y1]);
+        if (x < size_.width() - 1 && values_[x + 1][y] / 2 > values_[x][y] && values_[x + 1][y] >= 2) {
+            values_[x][y] = values_[x + 1][y] / 2;
+            updated = true;
+        }
+
+        if (y > 0 && values_[x][y - 1] / 2 > values_[x][y] && values_[x][y - 1] >= 2) {
+            values_[x][y] = values_[x][y - 1] / 2;
+            updated = true;
+        }
+
+        if (y < size_.height() - 1 && values_[x][y + 1] / 2 > values_[x][y] && values_[x][y + 1] >= 2) {
+            values_[x][y] = values_[x][y + 1] / 2;
+            updated = true;
+        }
+
+        if (updated) {
+            updateQueue.push(std::make_pair(x - 1, y));
+            updateQueue.push(std::make_pair(x + 1, y));
+            updateQueue.push(std::make_pair(x, y - 1));
+            updateQueue.push(std::make_pair(x, y + 1));
         }
     }
 }
