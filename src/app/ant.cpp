@@ -52,6 +52,9 @@ void Ant::tick() {
         forwardDirection_ = QVector2D(rotation.map(forwardDirection_.toPointF()));
         forwardDirection_.normalize();
     }
+
+    if (engine_.terrain().tile(position_.x(), position_.y()) == Tiles::WATER)
+        position_ += QVector2D(0, -speed_);
 }
 
 QVector2D Ant::position() const {
