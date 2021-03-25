@@ -14,21 +14,24 @@ Ant::Ant(GameEngine &engine, const QVector2D &pos) : engine_(engine), position_(
 
 void Ant::tick() {
     double rotationAmount = (rand() % 2) ? 20 : -20;
-    bool foodFound = false;
+    bool rotationChanged = false;
 
     if (forwardDirection_.length() < 0.5)
         forwardDirection_ = QVector2D(1.0, 0.0);
 
     if (foodCarried_ < MAX_FOOD_CARRIED) {
-        foodFound = getRotationAngleFromHeatmap(engine_.foodHeatmap(), rotationAmount);
+        rotationChanged = getRotationAngleFromHeatmap(engine_.foodHeatmap(), rotationAmount);
 
-        if (foodFound) {
+        if (rotationChanged) {
             for (Food &food : engine_.food()) {
                 if ((food.position() - position_).length() <= 1 && foodCarried_ < MAX_FOOD_CARRIED) {
                     foodCarried_ += food.take(MAX_FOOD_CARRIED - foodCarried_);
                 }
             }
         }
+    }
+    else {
+        rotationChanged = getRotationAngleFromHeatmap(engine_.colonyHeatmap(), rotationAmount);
     }
 
     QVector2D newPosition = position_ + forwardDirection_ * speed_ * 5;
@@ -37,7 +40,7 @@ void Ant::tick() {
         if (engine_.terrain().tile(newPosition.x(), newPosition.y()).empty()) {
             position_ += forwardDirection_ * speed_;
 
-            if (!foodFound)
+            if (!rotationChanged)
                 rotationAmount = (rand() % 2) ? 5 : -5;
         }
     }
@@ -68,7 +71,7 @@ bool Ant::getRotationAngleFromHeatmap(const Heatmap &heatmap, double &angle) {
     int y = position_.y();
     bool angleFound = false;
 
-    if (heatmap[x][y] > 0.5) {
+    if (heatmap[x][y] != 0) {
         double maxHeatmapValue = heatmap[x][y];
         QVector2D ortho(forwardDirection_.y(), -forwardDirection_.x());
 

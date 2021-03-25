@@ -16,6 +16,9 @@ Terrain::Terrain(const QSize &size) : size_(size) {
             else
                 tiles_[x][y] = Tiles::DIRT;
         }
+
+        if (x > 5 && x < 30)
+            tiles_[x][dirtLevel - 20] = Tiles::DIRT_STABLE;
     }
 
     for (int y = dirtLevel; y > dirtLevel - size_.height() / 3; --y) {
@@ -24,9 +27,6 @@ Terrain::Terrain(const QSize &size) : size_(size) {
         for (int x = size_.width() - wd; x < size_.width(); ++x) {
             tiles_[x][y] = Tiles::WATER;
         }
-
-        if (y < dirtLevel - 8)
-            tiles_[wd][y] = Tiles::DIRT_STABLE;
     }
 }
 
