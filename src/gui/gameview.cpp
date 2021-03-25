@@ -31,7 +31,7 @@ QColor getGradient(double level, double maxLevel) {
     else
         color = QColor::fromRgb(255, (2 - level / (maxLevel / 2)) * 255, 0);
 
-    color.setAlpha(sqrt(level / maxLevel) * 255);
+    color.setAlpha(sqrt(level / maxLevel) * 200);
     return color;
 }
 
@@ -47,10 +47,13 @@ void GameView::paintEvent(QPaintEvent *event) {
     painter.fillRect(0, 0, painter.device()->width(), painter.device()->height(), Tiles::SKY.color);
     painter.translate(shift);
 
+    Heatmap &heatmapToShow = engine_.foodHeatmap();
     long long maxHeatmapValue = 1;
+    long long minHeatmapValue = 0;
     for (int x = 0; x < terrain.size().width(); ++x) {
         for (int y = 0; y < terrain.size().height(); ++y) {
-            maxHeatmapValue = std::max(maxHeatmapValue, engine_.foodHeatmap()[x][y]);
+            maxHeatmapValue = std::max(maxHeatmapValue, heatmapToShow[x][y]);
+            minHeatmapValue = std::min(minHeatmapValue, heatmapToShow[x][y]);
         }
     }
 
@@ -60,7 +63,7 @@ void GameView::paintEvent(QPaintEvent *event) {
             double tileH = tileSize * terrain.tile(x, y).fillLevel / UINT8_MAX;
 
             painter.fillRect(x * tileSize, y * tileSize + (tileSize - tileH), ceil(tileSize), ceil(tileH), terrain.tile(x, y).color);
-            painter.fillRect(x * tileSize, y * tileSize, ceil(tileSize), ceil(tileSize), getGradient(engine_.foodHeatmap()[x][y], maxHeatmapValue));
+            painter.fillRect(x * tileSize, y * tileSize, ceil(tileSize), ceil(tileSize), getGradient(heatmapToShow[x][y] - minHeatmapValue, maxHeatmapValue - minHeatmapValue));
         }
     }
     painter.drawLine(0, 0, 0, terrain.size().height() * tileSize);

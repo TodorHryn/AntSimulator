@@ -10,7 +10,7 @@ struct Tile {
     uint8_t fillLevel = UINT8_MAX;
 
     bool empty() {
-        return isEmpty || (fillLevel == 0);
+        return isEmpty || (fillLevel <= 1);
     }
 
     bool operator==(const Tile &tile) {

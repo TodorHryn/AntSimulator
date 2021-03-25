@@ -19,11 +19,13 @@ class GameEngine {
         std::vector<Ant>& ants();
         std::vector<Food>& food();
         Heatmap& foodHeatmap();
+        Heatmap& lightHeatmap();
 
     private:
         std::vector<Ant> ants_;
         std::vector<Food> food_;
         Heatmap foodHeatmap_;
+        Heatmap lightHeatmap_;
         Terrain terrain_;
 };
 

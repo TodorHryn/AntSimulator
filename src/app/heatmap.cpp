@@ -11,6 +11,40 @@ Heatmap::Heatmap(GameEngine &engine, const QSize &heatmapSize) : engine_(engine)
 }
 
 void Heatmap::apply(int x, int y, long long amount) {
+    if (amount == values_[x][y])
+        return;
+
+    if (amount < values_[x][y]) {
+        struct TileToClear {
+            int x;
+            int y;
+            long long clearIfLessEqual;
+        };
+
+        std::queue<TileToClear> clearQueue;
+        clearQueue.push({x - 1, y, values_[x][y] - 1});
+        clearQueue.push({x + 1, y, values_[x][y] - 1});
+        clearQueue.push({x, y - 1, values_[x][y] - 1});
+        clearQueue.push({x, y + 1, values_[x][y] - 1});
+        values_[x][y] = 0;
+
+        while (!clearQueue.empty()) {
+            TileToClear tile = clearQueue.front();
+            clearQueue.pop();
+
+            if (tile.x < 0 || tile.y < 0 || tile.x > size_.width() - 1 || tile.y > size_.height() - 1)
+                continue;
+
+            if (values_[tile.x][tile.y] > 0 && values_[tile.x][tile.y] <= tile.clearIfLessEqual) {
+                clearQueue.push({tile.x - 1, tile.y, values_[tile.x][tile.y] - 1});
+                clearQueue.push({tile.x + 1, tile.y, values_[tile.x][tile.y] - 1});
+                clearQueue.push({tile.x, tile.y - 1, values_[tile.x][tile.y] - 1});
+                clearQueue.push({tile.x, tile.y + 1, values_[tile.x][tile.y] - 1});
+                values_[tile.x][tile.y] = 0;
+            }
+        }
+    }
+
     std::queue<std::pair<int, int>> updateQueue;
     updateQueue.push(std::make_pair(x - 1, y));
     updateQueue.push(std::make_pair(x + 1, y));
@@ -27,23 +61,23 @@ void Heatmap::apply(int x, int y, long long amount) {
         if (x < 0 || y < 0 || x > size_.width() - 1 || y > size_.height() - 1 || !engine_.terrain().tile(x, y).empty())
             continue;
 
-        if (x > 0 && values_[x - 1][y] / 2 > values_[x][y] && values_[x - 1][y] >= 2) {
-            values_[x][y] = values_[x - 1][y] / 2;
+        if (x > 0 && values_[x - 1][y] - 1> values_[x][y] && values_[x - 1][y] >= 2) {
+            values_[x][y] = values_[x - 1][y] - 1;
             updated = true;
         }
 
-        if (x < size_.width() - 1 && values_[x + 1][y] / 2 > values_[x][y] && values_[x + 1][y] >= 2) {
-            values_[x][y] = values_[x + 1][y] / 2;
+        if (x < size_.width() - 1 && values_[x + 1][y] - 1 > values_[x][y] && values_[x + 1][y] >= 2) {
+            values_[x][y] = values_[x + 1][y] - 1;
             updated = true;
         }
 
-        if (y > 0 && values_[x][y - 1] / 2 > values_[x][y] && values_[x][y - 1] >= 2) {
-            values_[x][y] = values_[x][y - 1] / 2;
+        if (y > 0 && values_[x][y - 1] - 1 > values_[x][y] && values_[x][y - 1] >= 2) {
+            values_[x][y] = values_[x][y - 1] - 1;
             updated = true;
         }
 
-        if (y < size_.height() - 1 && values_[x][y + 1] / 2 > values_[x][y] && values_[x][y + 1] >= 2) {
-            values_[x][y] = values_[x][y + 1] / 2;
+        if (y < size_.height() - 1 && values_[x][y + 1] - 1 > values_[x][y] && values_[x][y + 1] >= 2) {
+            values_[x][y] = values_[x][y + 1] - 1;
             updated = true;
         }
 

@@ -52,6 +52,11 @@ void Terrain::tick() {
             }
         }
     }
+
+    for (int x = 0; x < size_.width(); ++x)
+        for (int y = 0; y < size_.height(); ++y)
+            if (tiles_[x][y] == Tiles::WATER && tiles_[x][y].fillLevel <= 1)
+                tiles_[x][y] = Tiles::SKY;
 }
 
 bool Terrain::tryMove(int x, int y, int dx, int dy) {
