@@ -24,7 +24,8 @@ class GameEngine {
     private:
         std::vector<Ant> ants_;
         std::vector<Food> food_;
-        Heatmap foodHeatmap_, lightHeatmap_, colonyHeatmap_;
+        Heatmap foodHeatmap_;
+        Heatmap terrainHeatmap_, lightHeatmap_, colonyHeatmap_;
         Terrain terrain_;
 };
 

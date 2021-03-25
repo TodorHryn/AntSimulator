@@ -3,6 +3,7 @@
 GameEngine::GameEngine(const QSize &terrainSize) :
     terrain_(terrainSize),
     foodHeatmap_(*this, terrainSize),
+    terrainHeatmap_(*this, terrainSize),
     lightHeatmap_(*this, terrainSize),
     colonyHeatmap_(*this, terrainSize)
 {
@@ -34,9 +35,17 @@ void GameEngine::tick() {
         }
     }
 
+    terrainHeatmap_.clear();
     for (int x = 0; x < terrain_.size().width(); ++x) {
         for (int y = 0; y < terrain_.size().height(); ++y) {
-            colonyHeatmap_[x][y] = -lightHeatmap_[x][y];
+            if (terrain_.tile(x, y) == Tiles::DIRT || terrain_.tile(x, y) == Tiles::DIRT_STABLE)
+                terrainHeatmap_.apply(x, y, 10);
+        }
+    }
+
+    for (int x = 0; x < terrain_.size().width(); ++x) {
+        for (int y = 0; y < terrain_.size().height(); ++y) {
+            colonyHeatmap_[x][y] = terrainHeatmap_[x][y] - (terrain_.tile(x, y) == Tiles::WATER ? 8 : lightHeatmap_[x][y]);
         }
     }
 }
