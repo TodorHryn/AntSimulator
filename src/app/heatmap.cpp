@@ -24,7 +24,7 @@ void Heatmap::apply(int x, int y, long long amount) {
         bool updated = false;
         updateQueue.pop();
 
-        if (x < 0 || y < 0 || x > size_.width() - 1 || y > size_.height() - 1)
+        if (x < 0 || y < 0 || x > size_.width() - 1 || y > size_.height() - 1 || !engine_.terrain().tile(x, y).empty())
             continue;
 
         if (x > 0 && values_[x - 1][y] / 2 > values_[x][y] && values_[x - 1][y] >= 2) {
